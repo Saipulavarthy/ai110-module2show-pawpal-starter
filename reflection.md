@@ -10,10 +10,26 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+My initial design includes four classes: Owner, Pet, Task, and Scheduler.
+
+Owner represents the pet owner using the app. It holds a name and a list of Pet objects, and is responsible for adding new pets and providing access to all tasks across those pets (viewAllTasks()).
+Pet represents an individual animal, storing basic details (name, species, breed) along with a list of its own Task objects. It's responsible for adding tasks and returning its task list.
+Task represents a single care activity, such as a walk or feeding. It holds a description, time, duration, priority, frequency, and completion status, and is responsible for marking itself complete.
+Scheduler acts as the "brain" of the system. Rather than owning any data itself, it operates on an Owner's pets and tasks — retrieving all tasks (getTasks), organizing them (organizeTasks), and generating a full daily schedule (generateDailySchedule).
+
+The relationships are straightforward: an Owner has many Pets, and each Pet has many Tasks. The Scheduler doesn't own any of these objects — it just reads from and operates on them, keeping scheduling logic separate from the data model itself.
+
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+After reviewing my initial skeleton with my AI coding assistant, I made two targeted changes:
+
+Added a pet_name field to Task. Originally, Task had no reference back to the Pet it belonged to. This meant that once Scheduler.generate_daily_schedule() returned a flat list of tasks, there was no way to tell which pet each task was for (e.g., "08:00 Morning walk" — but whose walk?). Adding pet_name directly to Task was the simplest fix, avoiding the need for a separate task-to-pet mapping structure.
+Changed time from a string to datetime.time. I initially planned to store task times as strings (e.g., "08:00"). My AI assistant pointed out that this only works for sorting because ISO-formatted strings happen to sort correctly as text — but once I add durations, overlap detection, or recurring task calculations in Phase 4, I'd end up writing a manual parser to convert those strings back into usable time objects anyway. Switching to datetime.time now means sorting and time arithmetic will work natively without extra parsing logic.
+
+I chose not to implement the reviewer's other two suggestions yet: a dedicated ScheduledItem output type and removing Frequency from the MVP. I decided the added complexity of a wrapper type wasn't worth it before I even have real scheduling logic, and I'm keeping Frequency as a stored field since Phase 4 explicitly requires implementing recurring tasks — removing it now would just mean adding it back later.
 
 ---
 

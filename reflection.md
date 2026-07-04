@@ -1,6 +1,9 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
+1. Add a pet: The owner can register a new pet by entering basic details such as name, species/breed, and any care notes. This creates a Pet object tied to the Owner.
+2. Add a care task: The owner can create a task for a specific pet (e.g., "Morning walk," "Feed dinner," "Give medication"), specifying at least a duration and a priority level. This creates a Task object linked to that Pet.
+3. View today's schedule: The owner can generate and view a daily plan that organizes all pending tasks across their pets, ordered by priority and/or time, so they know what needs to get done and when.
 
 **a. Initial design**
 

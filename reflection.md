@@ -62,10 +62,16 @@ When I asked my AI assistant to simplify detect_conflicts further, its verdict w
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+I used my AI coding assistant across every phase of this project, but in distinctly different ways depending on the task. For design and planning (Phase 1 UML, Phase 4 algorithm planning, Phase 5 test planning), I used it as a brainstorming partner — asking it to suggest structures, edge cases, or improvements before I committed to an approach. For implementation, I relied on it to generate code from precise specifications I wrote myself, rather than open-ended requests — for example, giving it exact method signatures and behavior descriptions for sort_by_time, filter_tasks, and detect_conflicts rather than just saying "add sorting and filtering." For debugging and review, I used it to critique my own working code (e.g., asking it to review my class skeletons for missing relationships, or asking "how could this be simplified" on my finished detect_conflicts method).
+The most helpful prompts were ones with tight, specific constraints — telling it exactly which fields to add, what the return type should be, and what not to change. Open-ended prompts tended to produce more code than I needed or introduced changes I hadn't asked for, while narrow, well-scoped prompts kept the codebase clean and easy to verify.
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+One clear example: after my initial class skeleton review, my AI assistant suggested four changes — adding a pet_name field to Task, switching time to datetime.time, introducing a ScheduledItem wrapper type for schedule output, and dropping Frequency from the MVP entirely. I accepted the first two because they solved real, immediate problems (no way to trace a task back to its pet; string-based time sorting would break down once I needed real time arithmetic). I rejected the other two: the ScheduledItem wrapper felt like premature complexity for a system that didn't have real scheduling logic yet, and dropping Frequency would have meant re-adding it later since Phase 4 explicitly required recurring task logic.
+I verified this decision by weighing it against the project's actual roadmap rather than taking the suggestion at face value — since I could see recurring tasks were an upcoming requirement, keeping Frequency as a stub field was clearly the right call even though the AI's stated reasoning (avoiding an unused field) was technically sound in isolation. This taught me that AI suggestions are often locally correct but miss context about where the project is headed — that's a judgment call only I could make as the person holding the full project scope.
 
 ---
 
@@ -76,10 +82,14 @@ When I asked my AI assistant to simplify detect_conflicts further, its verdict w
 - What behaviors did you test?
 - Why were these tests important?
 
+I tested the four core algorithmic behaviors I implemented: sorting tasks chronologically, filtering by pet name and completion status, recurring task generation (daily and weekly), and conflict detection for tasks scheduled at the same time. I also tested edge cases identified in a dedicated test-planning session with my AI assistant: a pet with no tasks, an owner with no pets, marking a ONCE-frequency task complete (which should not generate a recurrence), and two tasks with the same time but different dates (which should not be flagged as a conflict). These tests mattered because they cover both the "obvious" happy paths a user would hit constantly (viewing a sorted schedule) and the quieter edge cases that are easy to overlook but would cause real bugs — for example, without testing the same-time-different-date case, I might not have noticed that my sorting logic doesn't account for date at all, only time of day.
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
+
+I'm fairly confident the scheduler works correctly for its intended scope — all 19 tests pass, covering sorting, filtering, recurrence, and conflict detection along with their edge cases. My confidence is a 4 out of 5, not a 5, because I know of specific limitations I haven't tested or resolved: conflict detection only catches exact time matches rather than true duration-based overlap, and sorting doesn't use date as a tiebreaker, meaning tasks on different days but the same time of day could interleave unexpectedly in a multi-day view. If I had more time, I'd test: multi-day schedules (to confirm the sorting limitation above is or isn't actually a problem in practice), a task with time=None if I ever allow "anytime" tasks, and a stress test with a larger number of pets/tasks to confirm performance holds at scale (though at the scale of a single household's daily tasks, this is unlikely to matter).
 
 ---
 
@@ -89,10 +99,17 @@ When I asked my AI assistant to simplify detect_conflicts further, its verdict w
 
 - What part of this project are you most satisfied with?
 
+I'm most satisfied with the algorithmic layer — sorting, filtering, recurrence, and conflict detection all came together cleanly and are fully covered by tests. I also think the incremental, phase-by-phase approach (CLI-first before UI, planning before implementation) paid off: by the time I got to the Streamlit integration, my logic layer was already verified independently, so wiring it to the UI was mostly straightforward rather than a source of new bugs.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+If I did another iteration, I'd address the two known limitations directly: implement true duration-based overlap detection instead of exact-time matching, and make sorting date-aware so multi-day schedules order correctly. I'd also reconsider whether Frequency needs more nuanced handling — right now recurrence generates exactly one next occurrence, but a more complete system might need to expand out a whole week or month view at once.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+The biggest thing I learned is that being the "lead architect" means treating AI suggestions as informed input, not answers — the AI can flag a real problem (like pet_name being missing) or offer a technically valid suggestion that's still wrong for my project's specific roadmap (like dropping Frequency). My job wasn't to follow every suggestion or reject them out of skepticism, but to evaluate each one against the actual shape and future requirements of the system I was building — something only I had full visibility into.
+

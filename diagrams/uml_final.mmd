@@ -1,0 +1,62 @@
+classDiagram
+    %% PawPal+ UML — updated to match final implementation in pawpal_system.py.
+
+    class Owner {
+        +String name
+        +List~Pet~ pets
+        +addPet(Pet pet)
+        +viewAllTasks() List~Task~
+    }
+
+    class Pet {
+        +String name
+        +String species
+        +String breed
+        +List~Task~ tasks
+        +addTask(Task task)
+        +getTasks() List~Task~
+        +completeTask(Task task) Task
+    }
+
+    class Task {
+        +String description
+        +String pet_name
+        +Time time
+        +Date date
+        +int duration
+        +Priority priority
+        +Frequency frequency
+        +boolean completed
+        +markComplete() Task
+    }
+
+    class Scheduler {
+        +getTasks(Owner owner) List~Task~
+        +organizeTasks(List~Task~ tasks) List~Task~
+        +sortByTime(List~Task~ tasks) List~Task~
+        +filterTasks(List~Task~ tasks, String petName, boolean completed) List~Task~
+        +detectConflicts(List~Task~ tasks) List~String~
+        +generateDailySchedule(Owner owner) List~Task~
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    class Frequency {
+        <<enumeration>>
+        ONCE
+        DAILY
+        WEEKLY
+    }
+
+    Owner "1" --> "*" Pet : owns
+    Pet "1" --> "*" Task : has
+    Scheduler ..> Owner : operates on
+    Scheduler ..> Pet : reads
+    Scheduler ..> Task : orders/filters
+    Task ..> Priority : uses
+    Task ..> Frequency : uses

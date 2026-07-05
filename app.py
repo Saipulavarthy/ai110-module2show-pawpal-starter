@@ -118,15 +118,60 @@ else:
 
 st.divider()
 
-st.subheader("Build Schedule")
+st.subheader("Daily Schedule")
 
-if st.button("Generate schedule"):
-    scheduler = Scheduler()
-    schedule = scheduler.generate_daily_schedule(owner)
-    if schedule:
-        st.write(f"**Today's Schedule for {owner.name}:**")
-        for t in schedule:
-            slot = t.time.strftime("%H:%M") if t.time else "--:--"
-            st.write(f"{slot} — {t.description} ({t.pet_name}) [{t.priority.name}]")
+scheduler = Scheduler()
+# Ordered chronologically (timeless tasks last) via the scheduling logic layer.
+schedule = scheduler.generate_daily_schedule(owner)
+
+if not schedule:
+    st.info("Nothing to schedule yet. Add some pets and tasks first.")
+else:
+    st.write(f"**Today's Schedule for {owner.name}:**")
+
+    # Surface double-bookings first, before the owner scans the full table.
+    # Conflicts are computed on the whole day's tasks, not the filtered view.
+    conflicts = scheduler.detect_conflicts(schedule)
+    if conflicts:
+        for warning in conflicts:
+            st.warning(f"⚠️ {warning}")
     else:
-        st.info("Nothing to schedule yet. Add some pets and tasks first.")
+        st.success("No scheduling conflicts today!")
+
+    # Filter controls — narrow the displayed tasks without touching the schedule.
+    fcol1, fcol2 = st.columns(2)
+    with fcol1:
+        pet_options = ["All pets"] + [p.name for p in owner.pets]
+        selected_pet = st.selectbox("Filter by pet", pet_options)
+    with fcol2:
+        status_choice = st.radio(
+            "Completion status",
+            ["All", "Completed", "Not completed"],
+            horizontal=True,
+        )
+
+    pet_filter = None if selected_pet == "All pets" else selected_pet
+    completed_filter = {"All": None, "Completed": True, "Not completed": False}[
+        status_choice
+    ]
+
+    visible = scheduler.filter_tasks(
+        schedule, pet_name=pet_filter, completed=completed_filter
+    )
+
+    if visible:
+        st.table(
+            [
+                {
+                    "time": t.time.strftime("%H:%M") if t.time else "--:--",
+                    "task": t.description,
+                    "pet": t.pet_name,
+                    "priority": t.priority.name,
+                    "duration": t.duration,
+                    "done": "✓" if t.completed else "",
+                }
+                for t in visible
+            ]
+        )
+    else:
+        st.info("No tasks match the current filters.")

@@ -63,13 +63,24 @@ Today's Schedule:
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest 
 
 # Run with coverage:
 pytest --cov
 ```
 
 Sample test output:
+platform darwin -- Python 3.11.7, pytest-7.4.0, pluggy-1.0.0
+rootdir: /Users/harithaadhikarla/Desktop/CodePath/ai110-module2show-pawpal-starter
+plugins: dash-3.2.0, anyio-4.2.0
+collected 19 items                                                                                                                                                      
+
+tests/test_pawpal.py ...................                                                                                                                          [100%]
+
+========================================================================== 19 passed in 0.02s ===========================================================================
+(base) harithaadhikarla@Mac ai110-module2show-pawp
+
+**Confidence Level:** (4/5)
 
 ```
 # Paste your pytest output here

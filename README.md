@@ -79,6 +79,16 @@ Sample test output:
 
 > Fill in once you've implemented scheduling logic.
 
+PawPal+'s scheduler includes four intelligent features:
+
+- **Sorting by time** — `Scheduler.sort_by_time()` orders all tasks chronologically by their `time` attribute, so the daily schedule always displays in the correct sequence regardless of the order tasks were added.
+
+- **Filtering by pet or status** — `Scheduler.filter_tasks()` returns a subset of tasks filtered by `pet_name`, completion status, or both, allowing an owner to quickly answer questions like "what does Mochi still need today?"
+
+- **Conflict detection** — `Scheduler.detect_conflicts()` groups tasks by exact date and time, flagging any slot with two or more tasks (even across different pets) and returning a human-readable warning instead of crashing. Note: it only catches exact time matches, not overlapping durations.
+
+- **Recurring tasks** — `Task.mark_complete()` and `Pet.complete_task()` work together so that completing a `DAILY` or `WEEKLY` task automatically generates and schedules the next occurrence, using `timedelta` to calculate the following date.
+
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
 | Task sorting | | e.g., by priority, duration |
